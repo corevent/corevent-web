@@ -26,8 +26,8 @@ export default defineConfig(({ command, mode }) => {
       tailwindcss(),
     ],
     server: {
-      // The API does not enable CORS, so in development requests to /api are
-      // proxied to the backend and the browser only talks to the Vite origin.
+      // The API only allows its FRONTEND_URL origin (CORS), so in development requests to /api
+      // are proxied to the backend and the browser only talks to the Vite origin.
       proxy: {
         '/api': {
           target: env.VITE_API_PROXY_TARGET || 'http://localhost:3000',

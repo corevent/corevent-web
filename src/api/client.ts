@@ -97,8 +97,10 @@ async function send(path: string, options: RequestOptions, withAuth: boolean): P
       signal: buildSignal(options),
     })
   } catch (error) {
-    if (error instanceof DOMException && error.name === 'TimeoutError') throw ApiError.timeout()
-    if (error instanceof DOMException && error.name === 'AbortError') throw error
+    // Checked by name: the DOMException may come from another realm (polyfills, test runners).
+    const name = error instanceof Error ? error.name : ''
+    if (name === 'TimeoutError') throw ApiError.timeout()
+    if (name === 'AbortError') throw error
     throw new ApiError(0, [])
   }
 }

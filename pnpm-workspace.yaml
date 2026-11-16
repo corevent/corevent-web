@@ -1,3 +1,8 @@
+# Packages allowed to run install scripts: Cypress downloads its binary; the optional
+# native file watcher used by Jest is not needed.
+allowBuilds:
+  '@parcel/watcher': false
+  cypress: true
 # Security fix (GHSA for source-map-js < 1.2.2) pulled by @tailwindcss/node 4.3.3.
 overrides:
   source-map-js: ^1.2.2

@@ -37,7 +37,7 @@ export async function uploadImage(file: File, purpose: UploadPurpose, eventId?: 
       signal: AbortSignal.timeout(UPLOAD_TIMEOUT_MS),
     })
   } catch (error) {
-    if (error instanceof DOMException && error.name === 'TimeoutError') {
+    if (error instanceof Error && error.name === 'TimeoutError') {
       throw new Error('O envio da imagem demorou demais. Verifique sua conexão e tente novamente.')
     }
     throw new Error('Não foi possível enviar a imagem ao armazenamento. Tente novamente.')

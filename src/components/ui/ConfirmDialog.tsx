@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react'
+import { useId, useState, type ReactNode } from 'react'
 import { X } from 'lucide-react'
 import { getErrorMessage } from '../../api/errors'
 import { Alert } from './Alert'
@@ -15,6 +15,7 @@ interface ConfirmDialogProps {
 }
 
 export function ConfirmDialog({ title, description, confirmLabel, tone = 'primary', onConfirm, onClose }: ConfirmDialogProps) {
+  const titleId = useId()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -31,11 +32,13 @@ export function ConfirmDialog({ title, description, confirmLabel, tone = 'primar
   }
 
   return (
-    <Modal onClose={onClose} maxWidth="max-w-sm" dismissible={!loading} className="p-6">
+    <Modal onClose={onClose} maxWidth="max-w-sm" dismissible={!loading} className="p-6" labelledBy={titleId}>
       <button onClick={onClose} disabled={loading} className="absolute top-4 right-4 text-zinc-400 hover:text-zinc-800" aria-label="Fechar">
         <X className="w-4 h-4" />
       </button>
-      <h3 className="text-base font-bold text-zinc-950 pr-6">{title}</h3>
+      <h3 id={titleId} className="text-base font-bold text-zinc-950 pr-6">
+        {title}
+      </h3>
       <div className="text-xs text-zinc-500 mt-1.5 space-y-2">{description}</div>
       {error && <Alert className="mt-3">{error}</Alert>}
       <div className="mt-5 flex justify-end gap-2">

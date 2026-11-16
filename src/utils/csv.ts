@@ -6,9 +6,14 @@ function escapeCell(value: string | number): string {
   return /[";\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text
 }
 
+/** Builds a ";"-separated CSV (the default separator of Excel in pt-BR). */
+export function buildCsv(header: string[], rows: (string | number)[][]): string {
+  return [header, ...rows].map((row) => row.map(escapeCell).join(';')).join('\r\n')
+}
+
 /** Downloads a ";"-separated CSV with BOM so Excel (pt-BR) opens accents correctly. */
 export function downloadCsv(filename: string, header: string[], rows: (string | number)[][]): void {
-  const content = [header, ...rows].map((row) => row.map(escapeCell).join(';')).join('\r\n')
+  const content = buildCsv(header, rows)
   const blob = new Blob(['﻿', content], { type: 'text/csv;charset=utf-8' })
   const url = URL.createObjectURL(blob)
   const link = document.createElement('a')

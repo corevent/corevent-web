@@ -33,6 +33,31 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      - name: Unit tests (Jest)
+        run: pnpm test:unit
+
+      - name: Integration tests (Vitest)
+        run: pnpm test:integration
+
+      - name: HTTP tests of the built site (Supertest)
+        run: pnpm test:api
+
+      - name: Install Cypress binary
+        run: pnpm exec cypress install
+
+      - name: E2E tests (Cypress)
+        run: pnpm test:e2e
+
+      - name: Upload Cypress screenshots and videos
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-artifacts
+          path: |
+            cypress/screenshots
+            cypress/videos
+          retention-days: 7
+
       - name: Build
         run: pnpm build
 

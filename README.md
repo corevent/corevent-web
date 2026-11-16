@@ -26,13 +26,58 @@ A API (`../api`) precisa estar rodando. Por padrão, o Vite encaminha `/api` par
 | `VITE_API_PROXY_TARGET` | Somente em desenvolvimento: para onde o proxy do Vite encaminha `/api`. Padrão: `http://localhost:3000`. |
 | `VITE_PARTICIPANT_APP_URL` / `VITE_ORGANIZER_APP_URL` | Links de download dos apps (participantes e colaboradores). Defina no `.env` (dev) **e** no `.env.production` (site publicado). Vazios = o modal informa "disponível em breve". |
 
-Outros scripts: `pnpm build` (typecheck + build), `pnpm lint`, `pnpm preview`.
+Outros scripts: `pnpm build` (typecheck + build), `pnpm lint`, `pnpm preview` e os testes (veja [Testes](#testes)).
 
 Arquivos de ambiente: `.env` é local e ignorado pelo Git (copie de `.env.example`); `.env.production` é versionado e contém apenas valores públicos usados no build de produção (CI).
 
-> **CORS:** em desenvolvimento o proxy do Vite evita o CORS. Em produção, a API precisa liberar a origem do site na variável `CORS_ORIGINS` (lista separada por vírgulas, ex.: `https://corevent-7e05e.web.app,https://corevent-7e05e.firebaseapp.com`). Sem ela, o CORS continua desativado e o site publicado não consegue chamar a API.
+> **CORS:** em desenvolvimento o proxy do Vite evita o CORS. Em produção, a API libera uma única origem, definida na variável `FRONTEND_URL` do backend (hoje `https://corevent.site`, o domínio do site no Firebase Hosting). Por isso o site publicado deve ser acessado por `https://corevent.site`: os endereços padrão do Firebase (`*.web.app` / `*.firebaseapp.com`) carregam a página, mas as chamadas à API são bloqueadas pelo navegador.
 
 > **Hosting:** `firebase.json` define CSP, `X-Frame-Options`, `nosniff`, `Referrer-Policy` e cache (`no-cache` nas páginas, cache longo nos assets com hash). Se a URL da API mudar, atualize o `connect-src` da CSP.
+
+## Testes
+
+Atende à prática **"Automação de Testes – Roteiro com o PI"**: o repositório tem testes **Jest**, **Supertest** e **Cypress** (incluindo o fluxo crítico `cypress/e2e/teste_pi.cy.js`), além de testes de integração em Vitest. Nenhum teste acessa a API real: ela é simulada com os mesmos contratos (rotas, formatos de resposta e erros) do backend em `../api`.
+
+| Tipo | Ferramenta | Onde | O que cobre |
+|---|---|---|---|
+| **Unitário** | Jest | `tests/unit/` | Validadores (CPF/CNPJ, senha, telefone, datas), máscaras e formatação, tradução de erros da API, geração de CSV (com proteção contra fórmulas), cálculo de vendas/receita |
+| **API/HTTP** | Supertest (com Jest) | `tests/api/` | O site compilado como no deploy (`vite build` + `vite preview`): página inicial, rotas do SPA, arquivos estáticos com o tipo correto, URL de produção da API no bundle, ausência de *source maps* e de arquivos `.env` expostos |
+| **Integração** | Vitest + Testing Library + MSW | `tests/integration/` | Cliente HTTP (renovação única de sessão, sessão expirada, timeout, resposta inesperada) e o app renderizado: login/logout, sessão restaurada, rotas protegidas, cadastro com verificação de e-mail, confirmação ao fechar modais, painel (indicadores, filtros, publicar/excluir, erro com "Tentar novamente") |
+| **E2E** | Cypress + Testing Library | `cypress/e2e/` | Fluxo crítico do PI (`teste_pi.cy.js`: entrar → painel) e jornadas completas: criar evento online e presencial com lotes, publicar, gerenciar lotes, exportar CSV, cancelar evento, conta, troca de senha, sessão expirada e cenários no layout mobile |
+
+### Como executar
+
+```bash
+pnpm install               # uma vez (baixa também o Cypress)
+pnpm exec cypress install  # só se o binário do Cypress não tiver sido baixado
+
+pnpm test                  # unitários (Jest) + integração (Vitest) + HTTP (Supertest)
+pnpm test:unit             # só unitários (Jest)
+pnpm test:integration      # só integração (Vitest)
+pnpm test:api              # só Supertest (faz o build e sobe o preview automaticamente)
+pnpm test:watch            # integração em modo watch
+pnpm test:coverage         # cobertura dos unitários (Jest) e da integração (Vitest)
+pnpm test:e2e              # E2E com Cypress no Chrome, sem interface (sobe o site na porta 4174)
+pnpm test:e2e:open         # abre a interface do Cypress: escolha "E2E Testing" e o navegador
+pnpm test:all              # tudo
+```
+
+O `pnpm test:e2e` usa o **Google Chrome** instalado na máquina (o navegador embutido do Cypress, Electron, trava em alguns cenários com modais no modo headless). No `pnpm test:e2e:open`, selecione o Chrome, como no roteiro da disciplina.
+
+### Onde ver os resultados
+
+- **Jest (unitários e Supertest) e Vitest (integração):** no terminal, arquivo a arquivo, com o total de testes aprovados e reprovados.
+- **Cobertura:** `pnpm test:coverage` mostra o resumo no terminal e gera relatórios navegáveis em `coverage/unit/index.html` (Jest) e `coverage/integration/index.html` (Vitest).
+- **Cypress:** o terminal mostra cada cenário e uma tabela final por arquivo. No modo `test:e2e:open`, o navegador abre sozinho e cada passo aparece na tela. Em falhas, há capturas de tela em `cypress/screenshots/` (e vídeos em `cypress/videos/` no CI).
+- **CI (GitHub Actions):** os workflows de PR e de deploy rodam lint, Jest, Vitest, Supertest e Cypress antes do build; se algo falhar, o deploy não acontece e as capturas do Cypress ficam disponíveis como artefato `cypress-artifacts`.
+
+### Como os testes estão organizados
+
+- `jest.config.js`: projetos `unit` e `api`. O TypeScript é compilado pelo Babel com configuração própria do Jest (não afeta o build do Vite).
+- `tests/api/global-setup.ts`: gera o build de produção em `node_modules/.tmp/supertest-dist` e sobe o `vite preview` na porta 4175 para o Supertest.
+- `vitest.config.ts`: testes de integração em jsdom. `.env.test` define a URL da API simulada.
+- `tests/mocks/`: dados de exemplo (`fixtures.ts`, também usados pelo Cypress) e a API simulada com MSW (`api.ts`).
+- `cypress.config.ts`, `cypress/support/`: comandos `cy.mockApi()` e `cy.visitSignedIn()`; a API é simulada com `cy.intercept` e cada teste falha se o app chamar um endpoint desconhecido. `.env.e2e` garante que nenhuma chamada saia para uma API real.
 
 ## Estrutura
 
