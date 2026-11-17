@@ -19,7 +19,7 @@ export default {
       displayName: 'unit',
       testEnvironment: 'node',
       testMatch: ['<rootDir>/tests/unit/**/*.test.ts'],
-      setupFiles: ['<rootDir>/tests/unit/setup-env.ts'],
+      globalSetup: '<rootDir>/tests/unit/global-setup.ts',
       transform: { '^.+\\.[jt]sx?$': babelTransform },
     },
     {
