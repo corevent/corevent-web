@@ -25,3 +25,9 @@ dist-ssr
 
 # Local environment (use .env.example as template)
 .env
+
+# Test reports and artifacts
+coverage
+cypress/videos
+cypress/screenshots
+cypress/downloads
