@@ -84,6 +84,9 @@ export class MockApi {
     }
     if (method === 'GET' && path === '/users/me/organizer-payment-info') return json(200, page(this.paymentInfos))
 
+    // Collaboration invitations received (header badge): none in these scenarios.
+    if (method === 'GET' && path === '/invitations/me') return json(200, page([]))
+
     // Locations
     if (method === 'GET' && path === '/states') return json(200, { data: [{ id: 35, name: 'São Paulo', acronym: 'SP' }] })
     if (method === 'GET' && path === '/states/35/cities') {

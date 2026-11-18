@@ -1,15 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router'
-import { ChevronDown, Layers, Lock, LogOut, Plus, User, Wallet } from 'lucide-react'
+import { ChevronDown, Handshake, Layers, Lock, LogOut, Plus, User, Wallet } from 'lucide-react'
 import { useOrganizerEvents } from '../../app/useOrganizerEvents'
 import { useUi } from '../../app/useUi'
 import { useAuth } from '../../auth/useAuth'
+import { usePendingInvitationsCount } from '../../features/staff/usePendingInvitationsCount'
 import { firstName } from '../../utils/format'
 import { Avatar } from '../Avatar'
 import { CoreventLogo } from '../CoreventLogo'
 
 const MENU_ITEMS = [
   { to: '/', label: 'Meus Eventos Criados', icon: Layers },
+  { to: '/colaboracoes', label: 'Colaborações', icon: Handshake },
   { to: '/conta', label: 'Dados pessoais', icon: User },
   { to: '/conta/seguranca', label: 'Segurança & Senha', icon: Lock },
   { to: '/conta/recebimentos', label: 'Dados de recebimento', icon: Wallet },
@@ -19,6 +21,7 @@ export function Navbar() {
   const { user, status, isOrganizer, logout } = useAuth()
   const { openAuth, requestCreateEvent } = useUi()
   const { events } = useOrganizerEvents()
+  const pendingInvitations = usePendingInvitationsCount()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
@@ -77,6 +80,26 @@ export function Navbar() {
               {events.length > 0 && (
                 <span className="w-5 h-5 rounded-full bg-brand/10 text-brand text-xs font-bold inline-flex items-center justify-center">
                   {events.length}
+                </span>
+              )}
+            </NavLink>
+            <NavLink
+              to="/colaboracoes"
+              className={({ isActive }) =>
+                `whitespace-nowrap shrink-0 transition-colors py-1 flex items-center gap-1.5 border-b-2 ${
+                  isActive ? 'text-brand font-bold border-brand' : 'border-transparent hover:text-zinc-950'
+                }`
+              }
+            >
+              <Handshake className="w-4 h-4 text-brand" />
+              <span>Colaborações</span>
+              {pendingInvitations > 0 && (
+                <span
+                  className="min-w-5 h-5 px-1 rounded-full bg-brand text-white text-xs font-bold inline-flex items-center justify-center"
+                  title="Convites aguardando resposta"
+                >
+                  {pendingInvitations}
+                  <span className="sr-only"> convite(s) aguardando resposta</span>
                 </span>
               )}
             </NavLink>
@@ -145,6 +168,11 @@ export function Navbar() {
                         >
                           <Icon className="w-4 h-4 text-brand" />
                           <span>{label}</span>
+                          {to === '/colaboracoes' && pendingInvitations > 0 && (
+                            <span className="ml-auto min-w-5 h-5 px-1 rounded-full bg-brand text-white text-[10px] font-bold inline-flex items-center justify-center">
+                              {pendingInvitations}
+                            </span>
+                          )}
                         </button>
                       ))}
                     </div>

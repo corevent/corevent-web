@@ -12,6 +12,7 @@ import { Button } from '../../components/ui/Button'
 import { ConfirmDialog } from '../../components/ui/ConfirmDialog'
 import { EmptyState } from '../../components/ui/EmptyState'
 import { ManageLotsModal } from '../events/ManageLotsModal'
+import { ManageStaffModal } from '../staff/ManageStaffModal'
 import { describeLocation } from '../events/eventLocation'
 import { AppDownloadModal } from '../../components/layout/AppDownloadModal'
 import { OneAccountNotice } from '../../components/layout/OneAccountNotice'
@@ -38,6 +39,7 @@ export function DashboardPage() {
   const [filter, setFilter] = useState<Filter>('all')
   const [showOrganizerApp, setShowOrganizerApp] = useState(false)
   const [manageEventId, setManageEventId] = useState<string | null>(null)
+  const [staffEventId, setStaffEventId] = useState<string | null>(null)
   const [pending, setPending] = useState<PendingAction | null>(null)
   const [feedback, setFeedback] = useState('')
 
@@ -50,6 +52,7 @@ export function DashboardPage() {
       (!query || normalize(`${event.title} ${describeLocation(event)}`).includes(query)),
   )
   const manageEvent = events.find((event) => event.id === manageEventId)
+  const staffEvent = events.find((event) => event.id === staffEventId)
 
   const runAction = async (action: PendingAction) => {
     const { event, type } = action
@@ -182,6 +185,7 @@ export function DashboardPage() {
               event={event}
               onCheckIn={() => setShowOrganizerApp(true)}
               onManageLots={() => setManageEventId(event.id)}
+              onManageStaff={() => setStaffEventId(event.id)}
               onPublish={() => setPending({ type: 'publish', event })}
               onCancel={() => setPending({ type: 'cancel', event })}
               onDelete={() => setPending({ type: 'delete', event })}
@@ -198,6 +202,8 @@ export function DashboardPage() {
           onPublish={() => setPending({ type: 'publish', event: manageEvent })}
         />
       )}
+
+      {staffEvent && <ManageStaffModal event={staffEvent} onClose={() => setStaffEventId(null)} />}
 
       {pending && (
         <ConfirmDialog

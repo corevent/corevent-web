@@ -105,6 +105,12 @@ export function createHandlers(db: MockDb) {
       return HttpResponse.json(page(db.paymentInfos))
     }),
 
+    // Collaboration invitations received (header badge): none in these scenarios.
+    http.get(`${API_URL}/invitations/me`, ({ request }) => {
+      if (!authorized(request)) return error(401, 'Unauthorized')
+      return HttpResponse.json(page([]))
+    }),
+
     http.get(`${API_URL}/events/my/organizer`, ({ request }) => {
       if (!authorized(request)) return error(401, 'Unauthorized')
       const status = new URL(request.url).searchParams.get('status')
