@@ -1,4 +1,4 @@
-import { Ban, Play, ScanLine, Trash2 } from 'lucide-react'
+import { Ban, Play, ScanLine, Trash2, Users } from 'lucide-react'
 import type { DashboardEvent } from '../../app/eventsContext'
 import { percentOf } from '../../app/eventStats'
 import { STATUS_BADGE_CLASSES, STATUS_LABELS } from '../../utils/categories'
@@ -11,6 +11,8 @@ interface EventCardProps {
   /** Check-in happens in the organizer mobile app; this opens its download instructions. */
   onCheckIn: () => void
   onManageLots: () => void
+  /** Collaborators (event staff) and their invitations. */
+  onManageStaff: () => void
   onPublish: () => void
   onCancel: () => void
   onDelete: () => void
@@ -19,7 +21,7 @@ interface EventCardProps {
 const iconButton =
   'p-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-50 text-zinc-500 transition-colors disabled:opacity-40 disabled:cursor-not-allowed'
 
-export function EventCard({ event, onCheckIn, onManageLots, onPublish, onCancel, onDelete }: EventCardProps) {
+export function EventCard({ event, onCheckIn, onManageLots, onManageStaff, onPublish, onCancel, onDelete }: EventCardProps) {
   const { stats } = event
   const percent = stats ? percentOf(stats.sold, stats.capacity) : 0
   const canCheckIn = event.status === 'opened' || event.status === 'going'
@@ -75,7 +77,7 @@ export function EventCard({ event, onCheckIn, onManageLots, onPublish, onCancel,
         )}
       </div>
 
-      <div className="flex items-center gap-2 shrink-0 w-full lg:w-auto justify-end pt-2 lg:pt-0 border-t lg:border-t-0 border-zinc-100">
+      <div className="flex flex-wrap items-center gap-2 shrink-0 w-full lg:w-auto justify-end pt-2 lg:pt-0 border-t lg:border-t-0 border-zinc-100">
         <button
           onClick={onCheckIn}
           disabled={!canCheckIn}
@@ -91,6 +93,16 @@ export function EventCard({ event, onCheckIn, onManageLots, onPublish, onCancel,
           className="px-3 py-1.5 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white text-xs font-semibold"
         >
           Gerenciar Lotes
+        </button>
+
+        <button
+          onClick={onManageStaff}
+          title="Colaboradores do evento"
+          aria-label="Equipe"
+          className="px-2 sm:px-3 py-1.5 rounded-lg border border-zinc-200 hover:bg-zinc-50 text-zinc-800 text-xs font-semibold flex items-center gap-1.5"
+        >
+          <Users className="w-3.5 h-3.5 text-brand" />
+          <span className="hidden sm:inline">Equipe</span>
         </button>
 
         {event.status === 'draft' && (

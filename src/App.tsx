@@ -17,6 +17,7 @@ import { AuthModal } from './features/auth/AuthModal'
 import { DashboardPage } from './features/dashboard/DashboardPage'
 import { VisitorGate } from './features/dashboard/VisitorGate'
 import { CreateEventModal, OrganizerRequiredModal } from './features/events/CreateEventModal'
+import { CollaborationsPage } from './features/staff/CollaborationsPage'
 
 function HomePage() {
   const { status } = useAuth()
@@ -85,6 +86,14 @@ export default function App() {
               <Route path="seguranca" element={<SecurityTab />} />
               <Route path="recebimentos" element={<PaymentInfoTab />} />
             </Route>
+            <Route
+              path="/colaboracoes"
+              element={
+                <RequireAuth>
+                  <CollaborationsPage />
+                </RequireAuth>
+              }
+            />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         )}

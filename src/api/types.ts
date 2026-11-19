@@ -205,3 +205,58 @@ export interface EventParticipant {
   email: string
   ticketsCount: number
 }
+
+// Event staff (collaborators) and their invitations: api/src/modules/event-staff(-invitations).
+
+/** `readonly`: sees the event and its participants. `checkin`: also validates tickets in the staff app. */
+export type StaffAccessLevel = 'readonly' | 'checkin'
+export type StaffInvitationStatus = 'pending' | 'accepted' | 'rejected' | 'canceled'
+
+/** User summary in staff/invitation lists. `avatarUrl` is the raw storage key here (not a signed URL). */
+export interface StaffUserInfo {
+  id: string
+  name: string
+  email: string
+  avatarUrl?: string | null
+}
+
+export interface InvitePayload {
+  email: string
+  originalAccessLevel: StaffAccessLevel
+}
+
+/** GET /invitations/events/:eventId (organizer view). */
+export interface EventInvitation {
+  id: string
+  userId: string
+  eventId: string
+  originalAccessLevel: StaffAccessLevel
+  invitationStatus: StaffInvitationStatus
+  user: StaffUserInfo
+}
+
+/** GET /invitations/me (invited user view). The organizer comes nested in `event`. */
+export interface ReceivedInvitation {
+  id: string
+  userId: string
+  originalAccessLevel: StaffAccessLevel
+  invitationStatus: StaffInvitationStatus
+  createdAt: string
+  event: { id: string; title: string; organizer?: StaffUserInfo | null }
+  organizer?: StaffUserInfo | null
+}
+
+/** GET /events/:eventId/staff: collaborators who accepted the invitation. */
+export interface EventStaffMember {
+  id: string
+  eventId: string
+  accessLevel: StaffAccessLevel
+  staffInvitationId: string
+  createdAt: string
+  user: StaffUserInfo
+}
+
+/** GET /events/my/staff: events where the current user is a collaborator. */
+export interface StaffEventListItem extends EventListItem {
+  accessLevel?: StaffAccessLevel
+}
