@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router'
-import { ChevronDown, Handshake, Layers, Lock, LogOut, Plus, User, Wallet } from 'lucide-react'
+import { ChartColumn, ChevronDown, Handshake, Layers, Lock, LogOut, Plus, User, Wallet } from 'lucide-react'
 import { useOrganizerEvents } from '../../app/useOrganizerEvents'
 import { useUi } from '../../app/useUi'
 import { useAuth } from '../../auth/useAuth'
@@ -12,6 +12,7 @@ import { CoreventLogo } from '../CoreventLogo'
 const MENU_ITEMS = [
   { to: '/', label: 'Meus Eventos Criados', icon: Layers },
   { to: '/colaboracoes', label: 'Colaborações', icon: Handshake },
+  { to: '/analises', label: 'Análises', icon: ChartColumn },
   { to: '/conta', label: 'Dados pessoais', icon: User },
   { to: '/conta/seguranca', label: 'Segurança & Senha', icon: Lock },
   { to: '/conta/recebimentos', label: 'Dados de recebimento', icon: Wallet },
@@ -102,6 +103,18 @@ export function Navbar() {
                   <span className="sr-only"> convite(s) aguardando resposta</span>
                 </span>
               )}
+            </NavLink>
+            {/* Third link only where it fits; on smaller screens "Análises" is in the account menu. */}
+            <NavLink
+              to="/analises"
+              className={({ isActive }) =>
+                `whitespace-nowrap shrink-0 transition-colors py-1 hidden xl:flex items-center gap-1.5 border-b-2 ${
+                  isActive ? 'text-brand font-bold border-brand' : 'border-transparent hover:text-zinc-950'
+                }`
+              }
+            >
+              <ChartColumn className="w-4 h-4 text-brand" />
+              <span>Análises</span>
             </NavLink>
           </nav>
         )}
