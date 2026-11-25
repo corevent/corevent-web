@@ -14,6 +14,7 @@ import { PaymentInfoTab } from './features/account/PaymentInfoTab'
 import { PersonalTab } from './features/account/PersonalTab'
 import { SecurityTab } from './features/account/SecurityTab'
 import { AuthModal } from './features/auth/AuthModal'
+import { AnalyticsPage } from './features/analytics/AnalyticsPage'
 import { DashboardPage } from './features/dashboard/DashboardPage'
 import { VisitorGate } from './features/dashboard/VisitorGate'
 import { CreateEventModal, OrganizerRequiredModal } from './features/events/CreateEventModal'
@@ -91,6 +92,14 @@ export default function App() {
               element={
                 <RequireAuth>
                   <CollaborationsPage />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/analises"
+              element={
+                <RequireAuth>
+                  <AnalyticsPage />
                 </RequireAuth>
               }
             />
